@@ -48,7 +48,7 @@
             --sombra-premium: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
 
-        /* Reset Global de Rendimiento */
+        /* Reset Global de Rendimiento y Bloqueo estricto de Scroll Lateral */
         * {
             margin: 0;
             padding: 0;
@@ -56,6 +56,12 @@
             font-family: var(--fuente);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
         }
 
         html {
@@ -67,8 +73,12 @@
             background-color: var(--bg-principal);
             color: var(--texto-primario);
             line-height: 1.5;
-            overflow-x: hidden;
             transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Bloqueo dinámico del Scroll en Body cuando el menú está abierto */
+        body.menu-bloqueado {
+            overflow: hidden !important;
         }
 
         img {
@@ -174,6 +184,7 @@
             font-weight: 700;
             letter-spacing: -0.02em;
             color: var(--verde-base);
+            z-index: 1010;
         }
 
         .logo img {
@@ -198,6 +209,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 1010;
         }
 
         .menu-hamburguesa {
@@ -210,6 +222,7 @@
             justify-content: center;
             gap: 5px;
             cursor: pointer;
+            z-index: 1010; /* Mantener por encima del panel oscuro */
         }
 
         .menu-hamburguesa span {
@@ -218,10 +231,13 @@
             height: 2.5px;
             background-color: var(--texto-primario);
             border-radius: 2px;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, background-color 0.3s;
         }
 
-        /* Animación Hamburguesa Abierta */
+        /* Animación de la hamburguesa cuando está activa (Estilo Cruz Blanca) */
+        .menu-hamburguesa.activo span {
+            background-color: #ffffff !important;
+        }
         .menu-hamburguesa.activo span:nth-child(1) {
             transform: translateY(7.5px) rotate(45deg);
         }
@@ -232,20 +248,25 @@
             transform: translateY(-7.5px) rotate(-45deg);
         }
 
+        /* Nuevo Menú Lateral Izquierdo Estilo Apple / Vercel */
         .nav-links {
             position: fixed;
-            top: 57px;
+            top: 0;
             left: 0;
-            width: 100%;
-            height: calc(100vh - 57px);
-            background: var(--bg-principal);
+            width: 280px;
+            max-width: 85vw;
+            height: 100vh;
+            background: #0d131f; /* Fondo oscuro elegante */
             display: flex;
             flex-direction: column;
-            padding: 2.5rem 1.5rem;
-            gap: 2rem;
+            padding: 6rem 2rem 2rem 2rem;
+            gap: 1.75rem;
             list-style: none;
-            transform: translateX(100%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1005;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.25);
+            /* Cambiado de 100% (derecha) a -100% (izquierda) para ocultarlo rigurosamente */
+            transform: translateX(-100%); 
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .nav-links.abierto {
@@ -253,11 +274,37 @@
         }
 
         .nav-links a {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            color: var(--texto-primario);
+            color: #94a3b8;
             text-decoration: none;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.01em;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover, .nav-links li.activo a {
+            color: #ffffff;
+        }
+
+        /* Fondo Oscuro Semitransparente (Overlay de protección táctil) */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1002;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-overlay.activo {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         /* -------------------------------------------------------------------------- */
@@ -810,6 +857,7 @@
                 gap: 2rem;
                 transform: none;
                 background: none;
+                box-shadow: none;
             }
 
             .nav-links a {
@@ -820,6 +868,10 @@
 
             .nav-links a:hover {
                 color: var(--verde-base);
+            }
+
+            body.dark-mode .nav-links a:hover {
+                color: #ffffff;
             }
 
             .hero-layout {
@@ -864,6 +916,9 @@
 </head>
 <body>
 
+    <!-- Overlay de Fondo Semitransparente -->
+    <div class="menu-overlay" id="menuOverlay" onclick="cerrarMenu()"></div>
+
     <header>
         <nav>
             <div class="logo">
@@ -878,11 +933,11 @@
                     <span></span>
                 </button>
                 <ul class="nav-links" id="navLinks">
-                    <li><a href="#problema" onclick="toggleMenu()">Problema</a></li>
-                    <li><a href="#funcionamiento" onclick="toggleMenu()">Funcionamiento</a></li>
-                    <li><a href="#prototipo" onclick="toggleMenu()">Ficha Técnica</a></li>
-                    <li><a href="#resultados" onclick="toggleMenu()">Impacto</a></li>
-                    <li><a href="#equipo" onclick="toggleMenu()">Equipo</a></li>
+                    <li><a href="#problema" onclick="cerrarMenu()">Problema</a></li>
+                    <li><a href="#funcionamiento" onclick="cerrarMenu()">Funcionamiento</a></li>
+                    <li><a href="#prototipo" onclick="cerrarMenu()">Ficha Técnica</a></li>
+                    <li><a href="#resultados" onclick="cerrarMenu()">Impacto</a></li>
+                    <li><a href="#equipo" onclick="cerrarMenu()">Equipo</a></li>
                 </ul>
             </div>
         </nav>
@@ -893,13 +948,11 @@
     <!-- ========================================================================== -->
     <section class="hero" id="hero">
         <div class="hero-layout">
-            <!-- Bloque Izquierdo: Copywriting e Impacto -->
             <div class="hero-info">
                 <span class="hero-badge">Feria de Ciencias 2026</span>
                 <h1>Cuidando el aire de nuestras aulas.</h1>
                 <p>Monitoreo inteligente que transforma variables invisibles en bienestar real para garantizar entornos educativos saludables y de alto rendimiento.</p>
                 
-                <!-- Nuevas Viñetas de Valor Explicativas -->
                 <div class="hero-features-list">
                     <div class="feature-bullet">
                         <span class="bullet-icon">✔</span>
@@ -919,14 +972,12 @@
                     </div>
                 </div>
 
-                <!-- Botones con Jerarquía Clara -->
                 <div class="hero-actions">
                     <a href="#funcionamiento" class="btn-cta primary-btn">Explorar Proyecto</a>
                     <a href="#prototipo" class="btn-cta secondary-btn">Ver Funcionamiento</a>
                 </div>
             </div>
 
-            <!-- Bloque Derecho: Panel Visual Conceptual (Opción C: Flujo IoT) -->
             <div class="hero-visual">
                 <div class="premium-glass-card">
                     <div class="flow-header">
@@ -936,25 +987,21 @@
                         <span class="flow-title">Ecosistema AmbienTech IoT</span>
                     </div>
                     <div class="iot-flow-container">
-                        <!-- Nodo 1 -->
                         <div class="flow-node">
                             <div class="node-icon">📡</div>
                             <span class="node-label">Sensores</span>
                         </div>
                         <div class="flow-arrow">➔</div>
-                        <!-- Nodo 2 -->
                         <div class="flow-node highlight">
                             <div class="node-icon">📟</div>
                             <span class="node-label">ESP32 Core</span>
                         </div>
                         <div class="flow-arrow">➔</div>
-                        <!-- Nodo 3 -->
                         <div class="flow-node">
                             <div class="node-icon">☁️</div>
                             <span class="node-label">Nube</span>
                         </div>
                         <div class="flow-arrow">➔</div>
-                        <!-- Nodo 4 -->
                         <div class="flow-node">
                             <div class="node-icon">📱</div>
                             <span class="node-label">App Móvil</span>
@@ -1130,22 +1177,37 @@
     </footer>
 
     <script>
-        // Control de Menú Hamburguesa
+        // CONTROL DISCRETO Y EXCLUSIVO DEL MENÚ MÓVIL
         function toggleMenu() {
-            const menuBtn = document.getElementById('menuBtn');
-            const navLinks = document.getElementById('navLinks');
-            
-            // Solo actuar si estamos en pantallas móviles
+            // Actuar únicamente en resoluciones móviles
             if (window.innerWidth <= 768) {
+                const menuBtn = document.getElementById('menuBtn');
+                const navLinks = document.getElementById('navLinks');
+                const menuOverlay = document.getElementById('menuOverlay');
+                
                 menuBtn.classList.toggle('activo');
                 navLinks.classList.toggle('abierto');
+                menuOverlay.classList.toggle('activo');
                 
-                // Evitar scroll del fondo con el menú abierto
-                document.body.style.overflow = navLinks.classList.contains('abierto') ? 'hidden' : 'auto';
+                // Bloquear el scroll de fondo de manera estricta
+                document.body.classList.toggle('menu-bloqueado');
             }
         }
 
-        // Sistema de Modo Oscuro Persistente
+        function cerrarMenu() {
+            if (window.innerWidth <= 768) {
+                const menuBtn = document.getElementById('menuBtn');
+                const navLinks = document.getElementById('navLinks');
+                const menuOverlay = document.getElementById('menuOverlay');
+                
+                menuBtn.classList.remove('activo');
+                navLinks.classList.remove('abierto');
+                menuOverlay.classList.remove('activo');
+                document.body.classList.remove('menu-bloqueado');
+            }
+        }
+
+        // SISTEMA DE MODO OSCURO PERSISTENTE
         const body = document.body;
         const themeBtn = document.getElementById('themeBtn');
 
