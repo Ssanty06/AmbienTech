@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>AmbienTech — Monitoreo Ambiental Inteligente</title>
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/hvpkdkMs/c3393f29-803c-419d-8def-f1f101e3bd5d.png">
+    
+    <style>
+        /* -------------------------------------------------------------------------- */
+        /* 01. VARIABLES & SISTEMA DE DISEÑO (Estilo Startup Premium)                  */
+        /* -------------------------------------------------------------------------- */
+        :root {
+            --bg-principal: #fafcfb;
+            --bg-tarjeta: #ffffff;
+            --bg-interior: #f3f7f5;
+            --texto-primario: #0f172a;
+            --texto-secundario: #475569;
+            --verde-base: #125438;
+            --verde-premium: #166534;
+            --verde-brillante: #10b981;
+            --verde-alfa: rgba(18, 84, 56, 0.05);
+            --borde-glass: rgba(0, 0, 0, 0.06);
+            --borde-tarjeta: rgba(0, 0, 0, 0.08);
+            --sombra-premium: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.02);
+            --radio-tarjeta: 20px;
+            --fuente: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            
+            /* Escala tipográfica fluida (Mobile-First) */
+            --h1: clamp(2.2rem, 5vw + 1rem, 3.5rem);
+            --h2: clamp(1.6rem, 3vw + 1rem, 2.5rem);
+            --h3: clamp(1.2rem, 2vw + 0.8rem, 1.75rem);
+            --cuerpo: clamp(0.95rem, 1vw + 0.7rem, 1.1rem);
+        }
+
+        /* Modo Oscuro Nativo */
+        body.dark-mode {
+            --bg-principal: #0b0f17;
+            --bg-tarjeta: #131b26;
+            --bg-interior: #1e293b;
+            --texto-primario: #f8fafc;
+            --texto-secundario: #94a3b8;
+            --verde-base: #3cd18d;
+            --verde-premium: #10b981;
+            --verde-alfa: rgba(60, 209, 141, 0.1);
+            --borde-glass: rgba(255, 255, 255, 0.08);
+            --borde-tarjeta: rgba(255, 255, 255, 0.1);
+            --sombra-premium: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Reset Global de Rendimiento */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--fuente);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            text-size-adjust: 100%;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--texto-primario);
+            line-height: 1.5;
+            overflow-x: hidden;
+            transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 02. COMPONENTES COMUNES (UX/UI Premium)                                    */
+        /* -------------------------------------------------------------------------- */
+        section {
+            padding: 4rem 1.25rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .titulo-seccion {
+            font-size: var(--h2);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--verde-base);
+            margin-bottom: 2.5rem;
+            text-align: left;
+        }
+
+        body.dark-mode .titulo-seccion {
+            color: #ffffff;
+        }
+
+        .btn-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 1.1rem 2rem;
+            background: var(--verde-base);
+            color: #ffffff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px var(--verde-alfa);
+        }
+
+        .btn-cta:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        body.dark-mode .btn-cta {
+            background: var(--verde-premium);
+            color: #0b0f17;
+            font-weight: 700;
+        }
+
+        .tarjeta-premium {
+            background: var(--bg-tarjeta);
+            border: 1px solid var(--borde-tarjeta);
+            border-radius: var(--radio-tarjeta);
+            padding: 2rem 1.5rem;
+            box-shadow: var(--sombra-premium);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 03. HEADER & MENÚ HAMBURGUESA MOBILE-FIRST                                */
+        /* -------------------------------------------------------------------------- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(250, 252, 251, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--borde-glass);
+            transition: background 0.3s;
+        }
+
+        body.dark-mode header {
+            background: rgba(11, 15, 23, 0.8);
+        }
+
+        nav {
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--verde-base);
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .nav-derecha {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-toggle-tema {
+            background: none;
+            border: 1px solid var(--borde-glass);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-hamburguesa {
+            background: none;
+            border: none;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .menu-hamburguesa span {
+            display: block;
+            width: 24px;
+            height: 2.5px;
+            background-color: var(--texto-primario);
+            border-radius: 2px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* Animación Hamburguesa Abierta */
+        .menu-hamburguesa.activo span:nth-child(1) {
+            transform: translateY(7.5px) rotate(45deg);
+        }
+        .menu-hamburguesa.activo span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-hamburguesa.activo span:nth-child(3) {
+            transform: translateY(-7.5px) rotate(-45deg);
+        }
+
+        .nav-links {
+            position: fixed;
+            top: 57px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 57px);
+            background: var(--bg-principal);
+            display: flex;
+            flex-direction: column;
+            padding: 2.5rem 1.5rem;
+            gap: 2rem;
+            list-style: none;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-links.abierto {
+            transform: translateX(0);
+        }
+
+        .nav-links a {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--texto-primario);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 04. SECCIÓN HERO (Optimizado para un vistazo rápido)                        */
+        /* -------------------------------------------------------------------------- */
+        .hero {
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+        }
+
+        .hero-info h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--verde-premium);
+            margin-bottom: 0.75rem;
+        }
+
+        .hero-info h1 {
+            font-size: var(--h1);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.04em;
+            margin-bottom: 1rem;
+        }
+
+        .hero-info p {
+            font-size: var(--cuerpo);
+            color: var(--texto-secundario);
+            margin-bottom: 2rem;
+        }
+
+        .hero-visual {
+            margin-top: 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Dashboard Flotante tipo Startup */
+        .hero-dashboard {
+            background: var(--bg-tarjeta);
+            border: 1px solid var(--borde-tarjeta);
+            border-radius: var(--radio-tarjeta);
+            padding: 1.5rem;
+            box-shadow: var(--sombra-premium);
+        }
+
+        .hero-dashboard-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            margin-bottom: 1.5rem;
+            background: var(--bg-interior);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .stats-grid-mini {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .stat-item-mini {
+            background: var(--bg-interior);
+            padding: 0.75rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-item-mini .label {
+            font-size: 0.75rem;
+            color: var(--texto-secundario);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-item-mini .valor {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--verde-base);
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 05. SECCIÓN PROBLEMA (Dashboard vertical con datos clave)                 */
+        /* -------------------------------------------------------------------------- */
+        .problema-contenedor {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .tarjeta-problema {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tarjeta-problema .icono {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .tarjeta-problema h3 {
+            font-size: var(--h3);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .tarjeta-problema p {
+            font-size: 0.95rem;
+            color: var(--texto-secundario);
+        }
+
+        .tarjeta-problema .badge-alerta {
+            align-self: flex-start;
+            margin-top: 0.5rem;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 06. TIMELINE VERTICAL (Cómo Funciona de forma secuencial)                 */
+        /* -------------------------------------------------------------------------- */
+        .timeline {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-left: 0.5rem;
+            border-left: 2px solid var(--verde-alfa);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .timeline-paso {
+            position: relative;
+        }
+
+        .timeline-punto {
+            position: absolute;
+            left: calc(-1.5rem - 6px);
+            top: 24px;
+            width: 10px;
+            height: 10px;
+            background: var(--verde-base);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px var(--bg-principal);
+        }
+
+        .tarjeta-paso h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--texto-primario);
+        }
+
+        .tarjeta-paso p {
+            font-size: 0.9rem;
+            color: var(--texto-secundario);
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 07. FICHA TÉCNICA (Formato App SaaS / Panel de Datos)                    */
+        /* -------------------------------------------------------------------------- */
+        .panel-saas {
+            background: var(--bg-tarjeta);
+            border: 1px solid var(--borde-tarjeta);
+            border-radius: var(--radio-tarjeta);
+            overflow: hidden;
+            box-shadow: var(--sombra-premium);
+        }
+
+        .panel-header {
+            background: var(--bg-interior);
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--borde-tarjeta);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--texto-secundario);
+        }
+
+        .panel-fila {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--borde-glass);
+        }
+
+        .panel-fila:last-child {
+            border-bottom: none;
+        }
+
+        .panel-label {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--texto-secundario);
+        }
+
+        .panel-valor {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--texto-primario);
+            background: var(--bg-interior);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 08. RESULTADOS KPI (Métricas tipo Dashboard)                              */
+        /* -------------------------------------------------------------------------- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+
+        .kpi-tarjeta {
+            text-align: left;
+        }
+
+        .kpi-numero {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--verde-base);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-tarjeta h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-tarjeta p {
+            font-size: 0.9rem;
+            color: var(--texto-secundario);
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 09. EQUIPO (Limpio y Responsivo)                                          */
+        /* -------------------------------------------------------------------------- */
+        .equipo-contenedor {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .miembro-card {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.25rem;
+        }
+
+        .miembro-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-interior);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 2px solid var(--verde-base);
+            flex-shrink: 0;
+        }
+
+        .miembro-info h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .miembro-info p {
+            font-size: 0.85rem;
+            color: var(--texto-secundario);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-top: 0.1rem;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 10. CTA FINAL & FOOTER (Impacto Premium)                                   */
+        /* -------------------------------------------------------------------------- */
+        .cta-premium {
+            background: radial-gradient(circle at top left, #125438, #051a11);
+            color: #ffffff;
+            border-radius: var(--radio-tarjeta);
+            padding: 3.5rem 1.5rem;
+            text-align: center;
+            box-shadow: var(--sombra-premium);
+        }
+
+        body.dark-mode .cta-premium {
+            background: radial-gradient(circle at top left, #0d2a1d, #06090f);
+        }
+
+        .cta-premium .logo-grande {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        .cta-premium h2 {
+            font-size: var(--h2);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .cta-premium p {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-premium .btn-cta {
+            background: #ffffff;
+            color: #125438;
+            font-weight: 700;
+        }
+
+        footer {
+            padding: 3rem 1.25rem;
+            text-align: center;
+            border-top: 1px solid var(--borde-glass);
+            font-size: 0.85rem;
+            color: var(--texto-secundario);
+        }
+
+        footer p + p {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 11. MEDIA QUERIES (Soporte Desktop elegante sin romper el Mobile-First)    */
+        /* -------------------------------------------------------------------------- */
+        @media (min-width: 769px) {
+            section {
+                padding: 6rem 2rem;
+            }
+
+            .menu-hamburguesa {
+                display: none;
+            }
+
+            .nav-links {
+                position: static;
+                width: auto;
+                height: auto;
+                flex-direction: row;
+                padding: 0;
+                gap: 2rem;
+                transform: none;
+                background: none;
+            }
+
+            .nav-links a {
+                font-size: 0.95rem;
+                font-weight: 500;
+                color: var(--texto-secundario);
+            }
+
+            .nav-links a:hover {
+                color: var(--verde-base);
+            }
+
+            .hero-layout {
+                display: grid;
+                grid-template-columns: 1.1fr 0.9fr;
+                gap: 4rem;
+                align-items: center;
+            }
+
+            .hero-visual {
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+
+            .btn-cta {
+                width: auto;
+                display: inline-flex;
+                padding: 1rem 2.5rem;
+            }
+
+            .problema-contenedor, .kpi-grid, .equipo-contenedor {
+                grid-template-columns: repeat(3, 1fr);
+                display: grid;
+                gap: 2rem;
+            }
+
+            .timeline {
+                flex-direction: row;
+                border-left: none;
+                border-top: 2px solid var(--verde-alfa);
+                padding-left: 0;
+                margin-left: 0;
+                padding-top: 1.5rem;
+            }
+
+            .timeline-punto {
+                left: 1.5rem;
+                top: calc(-1.5rem - 6px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="https://i.postimg.cc/hvpkdkMs/c3393f29-803c-419d-8def-f1f101e3bd5d.png" alt="AmbienTech Logo">
+                <span>AmbienTech</span>
+            </div>
+            <div class="nav-derecha">
+                <button class="btn-toggle-tema" id="themeBtn" onclick="toggleTheme()" aria-label="Cambiar tema">🌙</button>
+                <button class="menu-hamburguesa" id="menuBtn" onclick="toggleMenu()" aria-label="Abrir menú de navegación">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#problema" onclick="toggleMenu()">Problema</a></li>
+                    <li><a href="#funcionamiento" onclick="toggleMenu()">Funcionamiento</a></li>
+                    <li><a href="#prototipo" onclick="toggleMenu()">Ficha Técnica</a></li>
+                    <li><a href="#resultados" onclick="toggleMenu()">Impacto</a></li>
+                    <li><a href="#equipo" onclick="toggleMenu()">Equipo</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero" id="hero">
+        <div class="hero-layout">
+            <div class="hero-info">
+                <h2>Feria de Ciencias 2026</h2>
+                <h1>Cuidando el aire de nuestras aulas.</h1>
+                <p>Monitoreo inteligente en tiempo real que transforma variables invisibles en datos concretos para garantizar entornos educativos saludables.</p>
+                <a href="#funcionamiento" class="btn-cta">Explorar Prototipo</a>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-dashboard">
+                    <img src="https://i.postimg.cc/hvpkdkMs/c3393f29-803c-419d-8def-f1f101e3bd5d.png" alt="Vista del Prototipo AmbienTech" class="hero-dashboard-img">
+                    <div class="stats-grid-mini">
+                        <div class="stat-item-mini">
+                            <span class="label">🌫️ Calidad Aire</span>
+                            <span class="valor">Óptimo</span>
+                        </div>
+                        <div class="stat-item-mini">
+                            <span class="label">🔊 Sonido</span>
+                            <span class="valor">54 dB</span>
+                        </div>
+                        <div class="stat-item-mini">
+                            <span class="label">🌡️ Temperatura</span>
+                            <span class="valor">21.8 °C</span>
+                        </div>
+                        <div class="stat-item-mini">
+                            <span class="label">💧 Humedad</span>
+                            <span class="valor">46%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="problema">
+        <h2 class="titulo-seccion">El riesgo oculto en los entornos escolares</h2>
+        <div class="problema-contenedor">
+            <div class="tarjeta-premium tarjeta-problema">
+                <span class="icono">🏫</span>
+                <h3>Ventilación Insuficiente</h3>
+                <p>El aire confinado concentra CO₂ [cite: 180] y micropartículas, mermando de forma directa la capacidad de atención y el confort cognitivo de alumnos y docentes[cite: 181].</p>
+                <span class="badge-alerta">Somnolencia</span>
+            </div>
+            <div class="tarjeta-premium tarjeta-problema">
+                <span class="icono">🔊</span>
+                <h3>Polución Acústica</h3>
+                <p>Exceder de forma constante los límites de decibelios recomendados eleva el estrés fisiológico, dificultando el aprendizaje profundo[cite: 179].</p>
+                <span class="badge-alerta">Umbral Crítico</span>
+            </div>
+            <div class="tarjeta-premium tarjeta-problema">
+                <span class="icono">invisible</span>
+                <h3>Factores Invisibles</h3>
+                <p>Sin métricas objetivas es imposible gestionar el aula[cite: 176]. AmbienTech saca a la luz los datos que tu cuerpo siente pero tus ojos no ven[cite: 182].</p>
+                <span class="badge-alerta">Datos Ciegos</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="funcionamiento">
+        <h2 class="titulo-seccion">Arquitectura de captura y procesamiento</h2>
+        <div class="timeline">
+            <div class="timeline-paso">
+                <div class="timeline-punto"></div>
+                <div class="tarjeta-premium tarjeta-paso">
+                    <h4>01 / Muestreo Activo</h4>
+                    <p>Sensores integrados capturan simultáneamente lecturas analógicas y digitales del ambiente[cite: 215, 216].</p>
+                </div>
+            </div>
+            <div class="timeline-paso">
+                <div class="timeline-punto"></div>
+                <div class="tarjeta-premium tarjeta-paso">
+                    <h4>02 / Procesamiento Core</h4>
+                    <p>El procesador central ESP32 unifica, filtra y calibra las lecturas en tiempo real[cite: 214, 216].</p>
+                </div>
+            </div>
+            <div class="timeline-paso">
+                <div class="timeline-punto"></div>
+                <div class="tarjeta-premium tarjeta-paso">
+                    <h4>03 / IoT Telemetría</h4>
+                    <p>Los canales de datos sincronizan la información a nubes remotas para un acceso global[cite: 218].</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="prototipo">
+        <h2 class="titulo-seccion">Especificaciones del ecosistema hardware</h2>
+        <div class="panel-saas">
+            <div class="panel-header">Módulos Core — AmbienTech Prototipo V1 [cite: 234]</div>
+            <div class="panel-fila">
+                <span class="panel-label">Controlador Central</span>
+                <span class="panel-valor">ESP32 Wroom (Wi-Fi/BLE) [cite: 214]</span>
+            </div>
+            <div class="panel-fila">
+                <span class="panel-label">Espectro de Gases</span>
+                <span class="panel-valor">Células MQ-135 / MH-Z19B [cite: 215]</span>
+            </div>
+            <div class="panel-fila">
+                <span class="panel-label">Presión Acústica</span>
+                <span class="panel-valor">MAX9814 Preamp Amp [cite: 215]</span>
+            </div>
+            <div class="panel-fila">
+                <span class="panel-label">Higrotermometría</span>
+                <span class="panel-valor">Sensor Digital BME680 [cite: 215]</span>
+            </div>
+            <div class="panel-fila">
+                <span class="panel-label">Alimentación</span>
+                <span class="panel-valor">Ecosistema 5V USB Regulado [cite: 219]</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="resultados">
+        <h2 class="titulo-seccion">Propuesta de valor verificada</h2>
+        <div class="kpi-grid">
+            <div class="tarjeta-premium kpi-tarjeta">
+                <div class="kpi-numero">100%</div>
+                <h4>Interés Docente</h4>
+                <p>Aceptación unánime para integrar el dispositivo en la gestión del día a día del espacio áulico[cite: 207].</p>
+            </div>
+            <div class="tarjeta-premium kpi-tarjeta">
+                <div class="kpi-numero">0 ms</div>
+                <h4>Latencia Local</h4>
+                <p>Lectura directa en pantalla integrada para alertas de ventilación instantáneas[cite: 217].</p>
+            </div>
+            <div class="tarjeta-premium kpi-tarjeta">
+                <div class="kpi-numero">1/5X</div>
+                <h4>Costo Eficiente</h4>
+                <p>Diseño basado en componentes abiertos, altamente accesible en comparación con equipos comerciales.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="equipo">
+        <h2 class="titulo-seccion">Desarrolladores del proyecto</h2>
+        <div class="equipo-contenedor">
+            <div class="tarjeta-premium miembro-card">
+                <div class="miembro-avatar">👩‍💻</div>
+                <div class="miembro-info">
+                    <h4>Candela S. López Cirimele</h4>
+                    <p></p>
+                </div>
+            </div>
+            <div class="tarjeta-premium miembro-card">
+                <div class="miembro-avatar">👩‍💻</div>
+                <div class="miembro-info">
+                    <h4>Sofia Amante</h4>
+                    <p></p>
+                </div>
+            </div>
+            <div class="tarjeta-premium miembro-card">
+                <div class="miembro-avatar">👨‍💻</div>
+                <div class="miembro-info">
+                    <h4>Santiago Montalvan</h4>
+                    <p></p>
+                </div>
+            </div>
+            <div class="tarjeta-premium miembro-card">
+                <div class="miembro-avatar">👩‍💻</div>
+                <div class="miembro-info">
+                    <h4>Débora E. Benitez Dominguez</h4>
+                    <p></p>
+                </div>
+            </div>
+            <div class="tarjeta-premium miembro-card">
+                <div class="miembro-avatar">👩‍💻</div>
+                <div class="miembro-info">
+                    <h4>Sofia F. Marigliano</h4>
+                    <p></p>
+                </div>
+            </div>
+            <div class="tarjeta-premium miembro-card">
+                <div class="miembro-avatar">👨‍💻</div>
+                <div class="miembro-info">
+                    <h4>Renzo V. Amato Limido</h4>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section style="padding-bottom: 5rem;">
+        <div class="cta-premium">
+            <img src="https://i.postimg.cc/hvpkdkMs/c3393f29-803c-419d-8def-f1f101e3bd5d.png" alt="AmbienTech Emblema" class="logo-grande">
+            <h2>"Escuchar el aire es cuidar a las personas"</h2>
+            <p>Ecosistema de monitoreo ambiental inteligente diseñado para aulas escolares y espacios cerrados de aprendizaje[cite: 167].</p>
+            <a href="#hero" class="btn-cta">Volver Arriba</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 AmbienTech • Proyecto de Ciencias Escolar [cite: 162]</p>
+        <p>Instituto Santa Ana — Especialidad Informática Personal y Profesional [cite: 156, 161]</p>
+    </footer>
+
+    <script>
+        // Control de Menú Hamburguesa
+        function toggleMenu() {
+            const menuBtn = document.getElementById('menuBtn');
+            const navLinks = document.getElementById('navLinks');
+            
+            // Solo actuar si estamos en pantallas móviles
+            if (window.innerWidth <= 768) {
+                menuBtn.classList.toggle('activo');
+                navLinks.classList.toggle('abierto');
+                
+                // Evitar scroll del fondo con el menú abierto
+                document.body.style.overflow = navLinks.classList.contains('abierto') ? 'hidden' : 'auto';
+            }
+        }
+
+        // Sistema de Modo Oscuro Persistente
+        const body = document.body;
+        const themeBtn = document.getElementById('themeBtn');
+
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            body.classList.add('dark-mode');
+            themeBtn.textContent = '☀️';
+        } else {
+            body.classList.remove('dark-mode');
+            themeBtn.textContent = '🌙';
+        }
+
+        function toggleTheme() {
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                themeBtn.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeBtn.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+    </script>
+</body>
+</html>
