@@ -264,9 +264,10 @@
             list-style: none;
             z-index: 1005;
             box-shadow: 10px 0 30px rgba(0,0,0,0.25);
-            /* Cambiado de 100% (derecha) a -100% (izquierda) para ocultarlo rigurosamente */
             transform: translateX(-100%); 
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            backface-visibility: hidden;
+            will-change: transform;
         }
 
         .nav-links.abierto {
@@ -274,12 +275,15 @@
         }
 
         .nav-links a {
+            display: block;
+            padding: 0.75rem 0;
             font-size: 1.25rem;
             font-weight: 600;
             color: #94a3b8;
             text-decoration: none;
             letter-spacing: -0.01em;
             transition: color 0.2s ease;
+            touch-action: manipulation;
         }
 
         .nav-links a:hover, .nav-links li.activo a {
@@ -293,10 +297,8 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 1002;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
@@ -861,6 +863,9 @@
             }
 
             .nav-links a {
+                display: inline;
+                padding: 0;
+                width: auto;
                 font-size: 0.95rem;
                 font-weight: 500;
                 color: var(--texto-secundario);
@@ -1177,34 +1182,30 @@
     </footer>
 
     <script>
-        // CONTROL DISCRETO Y EXCLUSIVO DEL MENÚ MÓVIL
+        // CONTROL DEL MENÚ MÓVIL
+        function esMobile() {
+            return window.matchMedia('(max-width: 768px)').matches;
+        }
+
         function toggleMenu() {
-            // Actuar únicamente en resoluciones móviles
-            if (window.innerWidth <= 768) {
-                const menuBtn = document.getElementById('menuBtn');
-                const navLinks = document.getElementById('navLinks');
-                const menuOverlay = document.getElementById('menuOverlay');
-                
-                menuBtn.classList.toggle('activo');
-                navLinks.classList.toggle('abierto');
-                menuOverlay.classList.toggle('activo');
-                
-                // Bloquear el scroll de fondo de manera estricta
-                document.body.classList.toggle('menu-bloqueado');
-            }
+            if (!esMobile()) return;
+            const menuBtn = document.getElementById('menuBtn');
+            const navLinks = document.getElementById('navLinks');
+            const menuOverlay = document.getElementById('menuOverlay');
+            menuBtn.classList.toggle('activo');
+            navLinks.classList.toggle('abierto');
+            menuOverlay.classList.toggle('activo');
+            document.body.classList.toggle('menu-bloqueado');
         }
 
         function cerrarMenu() {
-            if (window.innerWidth <= 768) {
-                const menuBtn = document.getElementById('menuBtn');
-                const navLinks = document.getElementById('navLinks');
-                const menuOverlay = document.getElementById('menuOverlay');
-                
-                menuBtn.classList.remove('activo');
-                navLinks.classList.remove('abierto');
-                menuOverlay.classList.remove('activo');
-                document.body.classList.remove('menu-bloqueado');
-            }
+            const menuBtn = document.getElementById('menuBtn');
+            const navLinks = document.getElementById('navLinks');
+            const menuOverlay = document.getElementById('menuOverlay');
+            menuBtn.classList.remove('activo');
+            navLinks.classList.remove('abierto');
+            menuOverlay.classList.remove('activo');
+            document.body.classList.remove('menu-bloqueado');
         }
 
         // SISTEMA DE MODO OSCURO PERSISTENTE
