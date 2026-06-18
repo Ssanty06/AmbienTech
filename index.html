@@ -66,6 +66,7 @@
 
         html {
             scroll-behavior: smooth;
+            scroll-padding-top: 80px;
             text-size-adjust: 100%;
         }
 
@@ -153,8 +154,10 @@
         /* 03. HEADER & MENÚ HAMBURGUESA MOBILE-FIRST                                */
         /* -------------------------------------------------------------------------- */
         header {
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
             z-index: 1000;
             background: rgba(250, 252, 251, 0.8);
             backdrop-filter: blur(12px);
@@ -314,7 +317,7 @@
         /* -------------------------------------------------------------------------- */
         .hero {
             position: relative;
-            padding-top: 4rem;
+            padding-top: calc(4rem + 56px);
             padding-bottom: 5rem;
             background: radial-gradient(circle at 80% 20%, rgba(18, 84, 56, 0.04), transparent 40%);
         }
@@ -938,11 +941,11 @@
                     <span></span>
                 </button>
                 <ul class="nav-links" id="navLinks">
-                    <li><a href="#problema" onclick="cerrarMenu()">Problema</a></li>
-                    <li><a href="#funcionamiento" onclick="cerrarMenu()">Funcionamiento</a></li>
-                    <li><a href="#prototipo" onclick="cerrarMenu()">Ficha Técnica</a></li>
-                    <li><a href="#resultados" onclick="cerrarMenu()">Impacto</a></li>
-                    <li><a href="#equipo" onclick="cerrarMenu()">Equipo</a></li>
+                    <li><a href="#problema">Problema</a></li>
+                    <li><a href="#funcionamiento">Funcionamiento</a></li>
+                    <li><a href="#prototipo">Ficha Técnica</a></li>
+                    <li><a href="#resultados">Impacto</a></li>
+                    <li><a href="#equipo">Equipo</a></li>
                 </ul>
             </div>
         </nav>
@@ -1207,6 +1210,22 @@
             menuOverlay.classList.remove('activo');
             document.body.classList.remove('menu-bloqueado');
         }
+
+        // Navegación desde el menú mobile
+        document.querySelectorAll('#navLinks a').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                if (!esMobile()) return;
+                e.preventDefault();
+                var id = this.getAttribute('href').substring(1);
+                var target = document.getElementById(id);
+                cerrarMenu();
+                if (target) {
+                    setTimeout(function() {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 350);
+                }
+            });
+        });
 
         // SISTEMA DE MODO OSCURO PERSISTENTE
         const body = document.body;
